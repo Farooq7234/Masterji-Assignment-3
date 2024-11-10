@@ -9,8 +9,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input"; // Assuming Input exists in your ShadCN components
-import { Button } from "@/components/ui/button"; // Assuming Button exists in your ShadCN components
+import { Input } from "@/components/ui/input"; 
+import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ApiResponse } from "@/types/ApiResponse";
@@ -25,6 +25,9 @@ const WeatherNews = () => {
   const [city, setCity] = useState("");
   const { toast } = useToast();
   const [newsData, setnewsData] = useState<Article[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalResults, setTotalResults] = useState(0);
+
 
   const fetchWeather = async () => {
     if (!city) return;
@@ -48,13 +51,14 @@ const WeatherNews = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
+
+    const fetchData = async (page:number) => {
       try {
         const data = await axios.get(
-          `https://newsapi.org/v2/everything?pageSize=5&q=bitcoin&apiKey=${process.env.NEXT_PUBLIC_NEWS_API_SECRET}`
+          `https://newsapi.org/v2/everything?pageSize=5&page=${page}&q=bitcoin&apiKey=${process.env.NEXT_PUBLIC_NEWS_API_SECRET}`
         );
         setnewsData(data.data.articles);
+        setTotalResults(data.data.totalResults);
       } catch (error) {
         const axiosError = error as AxiosError<ApiResponse>;
         toast({
@@ -63,15 +67,30 @@ const WeatherNews = () => {
           variant: "destructive",
         });
       }
+    }
+    
+    useEffect(() => {
+      fetchData(currentPage)
+    }, [currentPage])
+    
+    const handleNext = () => {
+      if (currentPage * 5 < totalResults) {
+        setCurrentPage((prev) => prev + 1);
+      }
     };
-
-    fetchData();
-  }, []);
+  
+    const handlePrevious = () => {
+      if (currentPage > 1) {
+        setCurrentPage((prev) => prev - 1);
+      }
+    };
 
   const handleSearch = () => {
     setSearch(city);
     fetchWeather();
   };
+
+  
 
   if (loading) return <Loader2 className="animate-spin mx-auto mt-10" />;
 
@@ -158,7 +177,7 @@ const WeatherNews = () => {
       </div>
 
       {/* News Section */}
-      <div className="shadow-md rounded-md w-full lg:w-[65%] min-h-[100vh] p-6">
+      <div className="shadow-md rounded-md w-full lg:w-[65%] min-h-[100vh] p-6 dark:shadow-gray-500 dark:shadow-sm">
         <h2 className="text-2xl font-bold text-center lg:text-left">
           What's happening around the world
         </h2>
@@ -167,7 +186,7 @@ const WeatherNews = () => {
             <Card key={index}>
               <CardHeader>
                 {article.urlToImage && (
-                  <Image
+                  <img
                     src={article.urlToImage}
                     alt="Article Image"
                     className="rounded-md"
@@ -188,6 +207,10 @@ const WeatherNews = () => {
                </CardFooter>
             </Card>
           ))}
+        </div>
+        <div className="flex justify-between items-center py-10 w-full px-5">
+          <Button onClick={handlePrevious} disabled={currentPage === 1} >Previous Page</Button>
+          <Button onClick={handleNext} disabled={currentPage * 5 >= totalResults }>Next Page</Button>
         </div>
       </div>
     </div>
