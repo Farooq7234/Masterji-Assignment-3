@@ -1,53 +1,30 @@
-'use client'
+'use client';
 
-import React, { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { CalendarIcon, Plus } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-import { Calendar } from "@/components/ui/calendar";
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { CalendarIcon, Plus } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
+import { Calendar } from '@/components/ui/calendar';
 
-interface Task {
-  title: string;
-  description: string;
-  date: Date | null;
-}
-
-interface Tasks {
-  todo: Task[];
-  inProgress: Task[];
-  completed: Task[];
-}
-
-const Page: React.FC = () => {
-  const [tasks, setTasks] = useState<Tasks>({
+const Page = () => {
+  const [tasks, setTasks] = useState({
     todo: [],
     inProgress: [],
     completed: [],
   });
 
-  const [newTask, setNewTask] = useState<Task>({ title: "", description: "", date: null });
-  const [date, setDate] = useState<Date | null>(null);
+  const [newTask, setNewTask] = useState({ title: '', description: '', date: null });
+  const [date, setDate] = useState(null);
 
-  // Load tasks from local storage
-  useEffect(() => {
-    const storedTasks: Tasks = JSON.parse(localStorage.getItem("kanbanTasks") || "{}");
-    setTasks(storedTasks || { todo: [], inProgress: [], completed: [] });
-  }, []);
-
-  // Save tasks to local storage whenever tasks state changes
-  useEffect(() => {
-    localStorage.setItem("kanbanTasks", JSON.stringify(tasks));
-  }, [tasks]);
-
-  const addTask = (category: keyof Tasks): void => {
+  const addTask = (category) => {
     if (!newTask.title.trim() || !newTask.description.trim()) {
-      alert("Please fill in all fields");
+      alert('Please fill in all fields');
       return;
     }
 
@@ -58,7 +35,7 @@ const Page: React.FC = () => {
     setTasks(updatedTasks);
 
     // Reset new task form
-    setNewTask({ title: "", description: "", date: null });
+    setNewTask({ title: '', description: '', date: null });
     setDate(null);
   };
 
@@ -66,11 +43,11 @@ const Page: React.FC = () => {
     <div className="min-h-screen p-6">
       <h2 className="font-bold text-2xl">Kanban Board</h2>
       <div className="pt-5 flex justify-around">
-        {(["todo", "inProgress", "completed"] as Array<keyof Tasks>).map((category) => (
+        {['todo', 'inProgress', 'completed'].map((category) => (
           <Card key={category} className="w-[30%]">
             <CardHeader>
               <CardTitle>
-                {category === "todo" ? "To Do" : category === "inProgress" ? "In Progress" : "Completed"}
+                {category === 'todo' ? 'To Do' : category === 'inProgress' ? 'In Progress' : 'Completed'}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -78,7 +55,9 @@ const Page: React.FC = () => {
                 <div key={index} className="mb-2 p-2 border rounded">
                   <h4 className="font-bold">{task.title}</h4>
                   <p>{task.description}</p>
-                  <p className="text-sm text-muted-foreground">{task.date ? format(new Date(task.date), "PPP") : "No Date"}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {task.date ? format(new Date(task.date), 'PPP') : 'No Date'}
+                  </p>
                 </div>
               ))}
               <Dialog>
@@ -90,9 +69,7 @@ const Page: React.FC = () => {
                 <DialogContent className="sm:max-w-[425px]">
                   <DialogHeader>
                     <DialogTitle>Add New Task</DialogTitle>
-                    <DialogDescription>
-                      Please Enter the details for the new task below
-                    </DialogDescription>
+                    <DialogDescription>Please Enter the details for the new task below</DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-4 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
@@ -121,13 +98,10 @@ const Page: React.FC = () => {
                       <PopoverTrigger asChild>
                         <Button
                           variant={"outline"}
-                          className={cn(
-                            "w-[240px] justify-start text-left font-normal",
-                            !date && "text-muted-foreground"
-                          )}
+                          className={cn('w-[240px] justify-start text-left font-normal', !date && 'text-muted-foreground')}
                         >
                           <CalendarIcon />
-                          {date ? format(date, "PPP") : <span>Pick a date</span>}
+                          {date ? format(date, 'PPP') : <span>Pick a date</span>}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
